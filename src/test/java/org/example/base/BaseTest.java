@@ -4,21 +4,31 @@ import org.example.factory.DriverFactory;
 import org.example.utils.ConfigReader;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 
-public class BaseTest {
+/**
+ * Base test class handling per-test WebDriver initialization and teardown.
+ */
+public abstract class BaseTest {
 
-    @BeforeMethod
-    public void setUp() {
-        // 1) Start browser based on config
-        DriverFactory.initDriver(ConfigReader.get("browser"));
+    @BeforeMethod(alwaysRun = true)
+    @Parameters("browser")
+    public void setUp(@Optional String browserParam) {
+        // Prefer JVM -Dbrowser, then TestNG parameter, then config.properties.
+        String browser = System.getProperty("browser");
+        if (browser == null || browser.isBlank()) {
+            browser = (browserParam != null && !browserParam.isBlank())
+                    ? browserParam
+                    : ConfigReader.get("browser", "chrome");
+        }
 
-        // 2) Open base URL
+        DriverFactory.initDriver(browser);
         DriverFactory.getDriver().get(ConfigReader.get("baseUrl"));
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        // Close browser after every test
         DriverFactory.quitDriver();
     }
 }
