@@ -1,62 +1,52 @@
 package org.example.tests;
 
 import org.example.base.BaseTest;
+import org.example.pages.InventoryPage;
 import org.example.pages.LoginPage;
-import org.example.pages.LogoutPage;
-import org.example.pages.SecureAreaPage;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.sql.PseudoColumnUsage;
-
+/**
+ * Authentication tests against SauceDemo (valid login, locked/invalid users, and logout).
+ */
 public class LoginTest extends BaseTest {
 
-    @Test
-    public void validLoginShouldWork() {
-        SecureAreaPage secureAreaPage = new LoginPage()
-                .loginValid("tomsmith", "SuperSecretPassword!");
+    @Test(description = "Verify standard_user can log in and view the Products page")
+    public void validLoginShouldOpenProductsPage() {
+        InventoryPage inventoryPage = new LoginPage()
+                .loginAs("standard_user", "secret_sauce");
 
-        Assert.assertTrue(
-                secureAreaPage.IsLoggoutbuttonDisplayed(),
-                "Logout button should be visible after successful login."
-        );
-
-        Assert.assertTrue(
-                secureAreaPage.getsuccessmsg().contains("You logged into a secure area!"),
-                "Success message was not displayed correctly."
-        );
+        Assert.assertTrue(inventoryPage.isPageLoaded(), "Products page should load after valid login.");
+        Assert.assertEquals(inventoryPage.getProductCount(), 6, "Expected 6 products on inventory page.");
     }
 
-    @DataProvider(name = "invalidLoginData")
+    @DataProvider(name = "invalidLoginData", parallel = true)
     public Object[][] invalidLoginData() {
         return new Object[][]{
-                {"wrongUser", "wrongPass", "Your username is invalid!"},
-                {"tomsmith", "wrongPass", "Your password is invalid!"}
+                {"locked_out_user", "secret_sauce", "Sorry, this user has been locked out."},
+                {"wrong_user", "wrong_pass", "Username and password do not match any user in this service"},
+                {"", "secret_sauce", "Username is required"}
         };
     }
 
-    @Test(dataProvider = "invalidLoginData")
-    public void invalidLoginShouldShowError(String username, String password, String expectedMessage) {
+    @Test(dataProvider = "invalidLoginData", description = "Verify invalid or locked credentials show expected error")
+    public void invalidLoginShouldShowError(String username, String password, String expectedError) {
         LoginPage loginPage = new LoginPage()
-                .loginInvalid(username, password);
+                .loginExpectingError(username, password);
 
         Assert.assertTrue(
-                loginPage.getErrorMessage().contains(expectedMessage),
-                "Expected error message not shown. Actual: " + loginPage.getErrorMessage()
+                loginPage.getErrorMessage().contains(expectedError),
+                "Expected error not shown. Actual: " + loginPage.getErrorMessage()
         );
     }
 
-    @Test
-    public void loggedoutSuccessfully() {
-        SecureAreaPage secure = new LoginPage()
-                .loginValid("tomsmith", "SuperSecretPassword!");
+    @Test(description = "Verify logged-in user can log out via the sidebar menu")
+    public void userShouldBeAbleToLogout() {
+        LoginPage loginPage = new LoginPage()
+                .loginAs("standard_user", "secret_sauce")
+                .logout();
 
-        LoginPage loginPage = secure.clickLogout();
-
-        Assert.assertTrue(
-                loginPage.getErrorMessage().contains("You logged out of the secure area!"),
-                "Logged out successfully message was not displayed"
-        );
+        Assert.assertTrue(loginPage.isLoginButtonDisplayed(), "Login button should be visible after logout.");
     }
 }
