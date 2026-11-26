@@ -51,6 +51,7 @@ public final class DriverFactory {
             }
             case "chrome" -> {
                 ChromeOptions options = new ChromeOptions();
+                options.addArguments("--incognito");
                 if (headless) {
                     options.addArguments("--headless=new", "--window-size=1920,1080");
                 }

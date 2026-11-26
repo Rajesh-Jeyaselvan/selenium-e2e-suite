@@ -37,6 +37,7 @@ public class CartPage extends BasePage {
 
     public CheckoutPage proceedToCheckout() {
         click(checkoutButton);
+        waitForUrlContains("checkout-step-one.html");
         return new CheckoutPage();
     }
 }

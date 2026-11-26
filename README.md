@@ -1,4 +1,4 @@
-# Selenium E2E Automation Framework
+# Selenium E2E Suite
 
 A modular, thread-safe UI test automation framework built with **Java 17**, **Selenium 4**, **TestNG**, and **Maven** following the **Page Object Model (POM)** design pattern. Automated end-to-end against **[SauceDemo](https://www.saucedemo.com)**.
 
@@ -8,6 +8,7 @@ A modular, thread-safe UI test automation framework built with **Java 17**, **Se
 - **Language:** Java 17
 - **Browser Automation:** Selenium Java `4.22.0` (with built-in Selenium Manager)
 - **Test Runner:** TestNG `7.10.2`
+- **Reporting:** Allure Reports (`allure-testng` + `allure-maven`)
 - **Build Tool:** Maven (Surefire `3.2.5`)
 - **Logging:** SLF4J Simple
 
@@ -19,7 +20,7 @@ A modular, thread-safe UI test automation framework built with **Java 17**, **Se
 - **Centralized Explicit Waits:** `BasePage` encapsulates `WebDriverWait` (visibility, clickability, dropdown selection, URL checks) with `implicitlyWait` set to `0` to keep wait behavior deterministic.
 - **Fluent Page Objects:** Page actions return the next Page Object (e.g., `LoginPage.loginAs(...)` → `InventoryPage` → `CartPage` → `CheckoutPage`) for readable E2E flows.
 - **Data-Driven Testing:** Uses TestNG `@DataProvider` (with `parallel = true`) for locked-out, invalid, and missing-credential login scenarios.
-- **Automatic Failure Screenshots & Lifecycle Logging:** `TestListener` (`ITestListener`) logs test start/pass/fail/skip events and captures PNG screenshots to `target/screenshots/` on failure via `ScreenshotUtils`.
+- **Automatic Failure Screenshots & Allure Reporting:** `TestListener` (`ITestListener`, `ISuiteListener`) clears previous `target/allure-results/` at the start of every suite run, logs lifecycle events, saves PNG screenshots to `target/screenshots/`, and attaches failure screenshots directly to the Allure report.
 
 ---
 
@@ -86,6 +87,16 @@ mvn test -Dbrowser=firefox
 
 ### Run from IntelliJ IDEA
 Right-click `testng.xml` or any class under `src/test/java/org/example/tests/` and select **Run**.
+
+### Generate & View Allure Report
+Previous results in `target/allure-results/` are automatically cleared at the start of each run:
+```bash
+# Generate static HTML report in target/allure-report/
+mvn allure:report
+
+# Generate and open interactive report in your browser
+mvn allure:serve
+```
 
 ---
 
