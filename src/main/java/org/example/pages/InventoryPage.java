@@ -52,6 +52,7 @@ public class InventoryPage extends BasePage {
 
     public CartPage openCart() {
         click(cartLink);
+        waitForUrlContains("cart.html");
         return new CartPage();
     }
 

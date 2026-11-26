@@ -3,6 +3,9 @@ package org.example.pages;
 import org.example.factory.DriverFactory;
 import org.example.utils.ConfigReader;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -50,7 +53,14 @@ public abstract class BasePage {
     }
 
     protected void click(By locator) {
-        waitForClickable(locator).click();
+        try {
+            WebElement element = waitForClickable(locator);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
+            element.click();
+        } catch (StaleElementReferenceException | ElementClickInterceptedException e) {
+            WebElement element = waitForClickable(locator);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        }
     }
 
     protected void selectByVisibleText(By locator, String visibleText) {
