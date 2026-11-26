@@ -1,4 +1,4 @@
-# Selenium E2E Automation Framework
+# Selenium E2E Suite
 
 A modular, thread-safe UI test automation framework built with **Java 17**, **Selenium 4**, **TestNG**, and **Maven** following the **Page Object Model (POM)** design pattern. Automated end-to-end against **[SauceDemo](https://www.saucedemo.com)**.
 
